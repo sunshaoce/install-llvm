@@ -1,0 +1,45 @@
+name: Build and install LLVM on Windows
+
+on:
+  # Allow running the workflow manually
+  workflow_dispatch:
+  # Run the workflow once a month at 6:00
+  schedule:
+    - cron:  '0 6 1 * *'
+
+jobs:    
+  build_and_test:
+    name: Build LLDB-MI and run the testsuite
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Install Ninja (Windows)
+        run: choco install -y --no-progress ninja
+        
+      - name: Checkout LLVM project (Windows)
+        uses: actions/checkout@v2
+        with:
+          repository: llvm/llvm-project
+          ref: 'llvmorg-12.0.1'
+          path: './llvm-project'
+
+      # Required to find cl.exe
+      - name: Setup devcmd (Windows)
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build and install LLVM project (Windows)
+        env:
+          # CMake build type
+          BUILD_TYPE: Release
+        run: |
+          cd "${{github.workspace}}\llvm-project"
+          cmake -G Ninja -B ".\build" -S ".\llvm" -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DLLVM_ENABLE_PROJECTS="clang;lldb" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLLDB_INCLUDE_TESTS=OFF
+          cmake --build ".\build" --config ${{env.BUILD_TYPE}}
+          cmake --install ".\build" --config ${{env.BUILD_TYPE}} --prefix ".\inst"
+        
+      - uses: actions/upload-artifact@v2
+        with:
+          name: inst-dir
+          path: "./llvm-project/inst"
+          retention-days: 31
