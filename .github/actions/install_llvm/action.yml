@@ -6,7 +6,7 @@ inputs:
     default: 'llvm/llvm-project'
   ref:
     description: 'The llvm-project branch, tag or SHA to checkout.'
-    default: 'llvmorg-12.0.1'
+    default: 'llvmorg-13.0.0'
   path:
     description: 'Relative path under $GITHUB_WORKSPACE to place the repository'
     default: './llvm-project'
