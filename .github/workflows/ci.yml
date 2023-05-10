@@ -3,9 +3,17 @@ name: Build and install LLVM on Windows
 on:
   # Allow running the workflow manually
   workflow_dispatch:
-  # Run the workflow 4 times a year, approximately after LLVM releases
+  # Run the workflow once a week
   schedule:
-    - cron:  '0 6 21 FEB,MAY,AUG,NOV *'
+    - cron: '6 22 * * SUN'
+  # Run the workflow when a push is made
+  push:
+    branches:
+      - main
+  # Run the workflow when a pull request is made
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build_and_test:
@@ -13,6 +21,6 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.5.0
       - name: Use local action install_llvm with default arguments
         uses: ./.github/actions/install_llvm

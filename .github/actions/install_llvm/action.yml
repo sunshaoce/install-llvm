@@ -6,7 +6,7 @@ inputs:
     default: 'llvm/llvm-project'
   ref:
     description: 'The llvm-project branch, tag or SHA to checkout.'
-    default: 'llvmorg-13.0.0'
+    default: 'llvmorg-16.0.1'
   path:
     description: 'Relative path under $GITHUB_WORKSPACE to place the repository'
     default: './llvm-project'
@@ -19,7 +19,7 @@ runs:
       shell: pwsh
 
     - name: Checkout LLVM project (Windows)
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3.5.0
       with:
         repository: ${{inputs.repository}}
         ref: ${{inputs.ref}}
@@ -27,7 +27,9 @@ runs:
 
     # Required to find cl.exe
     - name: Setup devcmd (Windows)
-      uses: ilammy/msvc-dev-cmd@v1
+      uses: ilammy/msvc-dev-cmd@v1.12.1
+      with:
+        arch: x86
 
     - name: Build and install LLVM project (Windows)
       env:
@@ -41,7 +43,7 @@ runs:
       shell: pwsh
 
     # Use default 90-day retention period
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3.1.2
       with:
         name: llvm-inst
         path: "./llvm-project/inst"
