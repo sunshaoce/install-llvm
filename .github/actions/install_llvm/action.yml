@@ -6,7 +6,7 @@ inputs:
     default: 'llvm/llvm-project'
   ref:
     description: 'The llvm-project branch, tag or SHA to checkout.'
-    default: 'llvmorg-16.0.1'
+    default: 'llvmorg-16.0.6'
   path:
     description: 'Relative path under $GITHUB_WORKSPACE to place the repository'
     default: './llvm-project'
@@ -31,13 +31,20 @@ runs:
       with:
         arch: x86
 
+    - name: Setup python
+      uses: actions/setup-python@v4
+      id: cpython
+      with:
+        python-version: '3.10'
+        architecture : x86
+
     - name: Build and install LLVM project (Windows)
       env:
         # CMake build type
         BUILD_TYPE: Release
       run: |
         cd "${{github.workspace}}\llvm-project"
-        cmake -G Ninja -B ".\build" -S ".\llvm" -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DLLVM_ENABLE_PROJECTS="clang;lldb" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLLDB_INCLUDE_TESTS=OFF
+        cmake -G Ninja -B ".\build" -S ".\llvm" -DPython3_EXECUTABLE=${{ steps.cpython.outputs.python-path }} -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DLLVM_ENABLE_PROJECTS="clang;lldb" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DLLDB_INCLUDE_TESTS=OFF
         cmake --build ".\build" --config ${{env.BUILD_TYPE}}
         cmake --install ".\build" --config ${{env.BUILD_TYPE}} --prefix ".\inst"
       shell: pwsh
